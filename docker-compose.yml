@@ -15,9 +15,67 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
+
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
     networks:
       - ppq
     depends_on:
+      - mysql
+      - redis
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: ./compose/celery.Dockerfile
+    container_name: ppq-celery-worker
+    environment:
+      DB_PROVIDER: ${DB_PROVIDER}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    networks:
+      - ppq
+    depends_on:
+      - redis
+      - mysql
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+
+  celery_flower:
+    build:
+      context: .
+      dockerfile: ./compose/flower.Dockerfile
+    container_name: ppq-celery-flower
+    environment:
+      DB_PROVIDER: ${DB_PROVIDER}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    ports:
+      - "127.0.0.1:5555:80"
+    networks:
+      - ppq
+    depends_on:
+      - redis
       - mysql
     deploy:
       restart_policy:
@@ -44,6 +102,14 @@ services:
         condition: on-failure
         delay: 30s
         max_attempts: 3
+
+  redis:
+    image: redis
+    container_name: ppq-redis
+    networks:
+      - ppq
+    expose:
+      - '6379'
 
 networks:
   ppq:

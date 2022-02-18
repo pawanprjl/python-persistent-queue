@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from . import models, schemas
+from app.users.tasks import update_active_status
 
 
 def get_all_users(db: Session):
@@ -28,6 +29,9 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    # add update task to work in queue
+    result = update_active_status.delay(db_user.id)
 
     return db_user
 
