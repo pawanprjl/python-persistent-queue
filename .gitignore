@@ -1,1 +1,7 @@
 .idea
+
+# ignore pycache files
+**__pycache__**
+
+# ignore db file
+db.sqlite3
