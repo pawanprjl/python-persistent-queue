@@ -6,8 +6,16 @@ from functools import lru_cache
 class BaseConfig:
     BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent
 
-    DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")
-    DATABASE_CONNECT_DICT: dict = os.environ.get("DATABASE_CONNECT_DICT", {"check_same_thread": False})
+    # fetch database environment from .env
+    DB_PROVIDER = os.environ.get('DB_PROVIDER', 'mysql+pymysql')
+    DB_DATABASE = os.environ.get('DB_DATABASE', 'mysql')
+    DB_USER = os.environ.get('DB_USER', 'root')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+    DB_HOST = os.environ.get('DB_HOST', 'mysql')
+    DB_PORT = os.environ.get('DB_PORT', '3306')
+
+    SQLALCHEMY_DATABASE_URL = f"{DB_PROVIDER}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+    DATABASE_CONNECT_DICT: dict = {}
 
 
 class DevelopmentConfig(BaseConfig):
