@@ -110,6 +110,8 @@ services:
       - ppq
     expose:
       - '6379'
+    volumes:
+      - redis_db:/data
 
 networks:
   ppq:
@@ -117,3 +119,4 @@ networks:
 
 volumes:
   ppq_db:
+  redis_db:
